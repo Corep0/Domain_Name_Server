@@ -1,0 +1,4 @@
+build/
+*.o
+DoT_client
+*.md
