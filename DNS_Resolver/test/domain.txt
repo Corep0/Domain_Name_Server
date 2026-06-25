@@ -1,0 +1,9 @@
+www.google.com
+google.com
+google.fr
+www.youtube.com
+github.com
+wikipedia.com
+wikipedia.fr
+w3schools.com
+www.w3schools.com

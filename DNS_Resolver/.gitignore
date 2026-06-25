@@ -1,0 +1,4 @@
+buid/
+*.md
+*.o
+dns_resolver
