@@ -213,9 +213,8 @@ size_t 	tablen(char** data){
 		;
 	return i;
 }
-char *	tab_search(char **data, char *needle){
-	for (size_t i = 0; data[i] != NULL; i++)
-		if (strcmp(needle, data[i]) == 0)
-			return data[i];
+const unsigned char *	tab_search(const unsigned char *data, unsigned int len){
+	if (len == 2 && memcmp(data, "h2", 2) == 0)
+		return data;
 	return NULL;
 }

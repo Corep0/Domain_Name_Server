@@ -17,7 +17,9 @@ SRC = 	$(SRCD)main.c 			\
 		$(SRCD)dns_parse.c 		\
 		$(SRCD)tools.c			\
 		$(SRCD)socket_tcp.c		\
-		$(SRCD)tls_session.c	
+		$(SRCD)tls_session.c	\
+		$(SRCD)http2_parse.c	\
+		$(SRCD)http2_build.c
 
 OBJ = $(patsubst $(SRCD)%.c, $(OBJD)%.o, $(SRC))
 

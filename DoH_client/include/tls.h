@@ -7,7 +7,7 @@
 # include <openssl/err.h>
 
 # define TIMEOUT_CONNECTION 120 // 120seconds to respect, closing connection due to idle connection security
-# define TLS_PORT           853
+# define TLS_PORT           443 // 853 > DoT
 # define TLS_SERVER         "1.1.1.1" // Used in the DoT_client
 
 typedef struct tls_session{

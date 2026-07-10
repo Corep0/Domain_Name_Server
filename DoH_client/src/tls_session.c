@@ -1,5 +1,6 @@
 # include "tls.h"
 # include "dns.h"
+# include "https.h"
 
 /*
 TLS handshake + cert verif
@@ -18,6 +19,7 @@ void    build_tls_session(int socketfd, s_tls_session* sess){
     SSL_CTX     *ctx_tmp;
     SSL         *ssl_tmp;
     struct sockaddr_in server;
+    const unsigned char *alpn = (const unsigned char*)"\x02h2";
 
 //TCP Socket
     memset(&server, 0, sizeof(server));
@@ -40,7 +42,7 @@ void    build_tls_session(int socketfd, s_tls_session* sess){
         printf("Cannot found ceritificate");
         return;
     }
-    if (SSL_CTX_set_alpn_protos(ctx, "\x02h2", 3) != 0){
+    if (SSL_CTX_set_alpn_protos(ctx_tmp, alpn, 3) != 0){
         printf("Failed to apply \"h2\" protocol on ctx");
         return;
     }
@@ -50,6 +52,10 @@ void    build_tls_session(int socketfd, s_tls_session* sess){
     }
 // Wrap TCP socket into TLS session
     SSL_set_fd(ssl_tmp, socketfd);
+    if (SSL_set_tlsext_host_name(ssl_tmp, "cloudflare-dns.com") == 0){
+        printf("Servername got refused by the server");
+        return;
+    }
     if (SSL_connect(ssl_tmp) != 1){
         printf("HandShake failed - Connection isn't secure");
         int err = SSL_get_error(ssl_tmp, -1);
@@ -57,14 +63,13 @@ void    build_tls_session(int socketfd, s_tls_session* sess){
         ERR_print_errors_fp(stderr);
         return ;
     }
-    char **negotiated;
-    unsigned int len;
-    SSL_get0_alpn_selected(sess->ssl, negotiated, len);
-    if (len == 0 || tab_search(negotiated, "\x02h2") == NULL){
-        printf("The Protocol h2 has been agreed on");
+    const unsigned char *negotiated = NULL;
+    unsigned int len = 0;
+    SSL_get0_alpn_selected(ssl_tmp, &negotiated, &len);
+   	if (len != 2 || memcmp(negotiated, "h2", 2) != 0 || !negotiated){
+        printf("The Protocol h2 has been refused. | In need to add a backup protocol");
         return;
     }
-    
 // Verify validity of the certificates /certs/ca-bundle.rt
     if (SSL_get_verify_result(ssl_tmp) != X509_V_OK){
         printf("Furnished Certificates by peer is invalid");
